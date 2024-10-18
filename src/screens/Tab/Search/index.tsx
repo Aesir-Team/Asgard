@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, FlatList, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, TextInput, Button, FlatList, StyleSheet } from 'react-native';
 import { MangaApi } from '../../../services/api'; // Importe sua classe MangaApi
 
-interface Manga {
-  title: string;
-  image: string | null;
-}
+import MangaItem from '../../../components/MangaItem'; // Importe o componente MangaItem
+import { Manga } from '../../../models/Manga';
+
 
 export default function Search() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,13 +30,6 @@ export default function Search() {
     }
   };
 
-  const renderMangaItem = ({ item }: { item: Manga }) => (
-    <TouchableOpacity style={styles.mangaItem}>
-      {item.image ? <Image source={{ uri: item.image }} style={styles.mangaImage} /> : null}
-      <Text style={styles.mangaTitle} >{item.title}</Text>
-    </TouchableOpacity>
-  );
-
   return (
     <View style={styles.container}>
       <TextInput
@@ -54,7 +46,7 @@ export default function Search() {
       <FlatList
         data={mangaList}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={renderMangaItem} // Renderiza cada item da lista
+        renderItem={({ item }) => <MangaItem manga={item} />} // Renderiza cada item da lista
       />
     </View>
   );
@@ -71,27 +63,5 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 20,
     borderColor: 'gray',
-  },
-  mangaItem: {
-    borderWidth: 1,
-    borderColor: 'gray',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 20,
-    borderRadius: 8,
-    padding: 10, // Adiciona um pouco de espaçamento ao redor do item
-  },
-  mangaImage: {
-
-    width: 70,
-    height: 90,
-    borderRadius: 8,
-  },
-  mangaTitle: {
-    paddingLeft: 10,
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'gray',
-    flex: 1, // Permite que o título ocupe o espaço restante
   },
 });

@@ -2,7 +2,7 @@ export class MangaApi {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = "http://192.168.2.16:3000";
+    this.baseUrl = "http://192.168.2.54:3000";
   }
 
   // Recupera uma lista de todos os mangás

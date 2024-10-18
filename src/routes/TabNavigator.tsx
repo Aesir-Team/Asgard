@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Home from '../screens/Tab/Home';
 import Search from '../screens/Tab/Search';
 import Download from '../screens/Tab/Download';
+import theme from '../theme';
 
 const Tab = createBottomTabNavigator();
 
@@ -30,8 +31,15 @@ export function TabRoutes() {
 
           return <Ionicons name={iconName as keyof typeof Ionicons.glyphMap} size={size} color={color} />;
         },
-        tabBarActiveTintColor: 'tomato',
-        tabBarInactiveTintColor: 'gray',
+        tabBarActiveTintColor: theme.colors.purpleLight,
+        tabBarInactiveTintColor: theme.colors.white,
+        tabBarStyle: {
+          backgroundColor: theme.colors.purpleDark, // Cor de fundo da tabBar
+        },
+        headerStyle: {
+          backgroundColor: theme.colors.purpleDark, // Cor de fundo do header (parte superior)
+        },
+        headerTintColor: theme.colors.white, // Cor dos textos e ícones no header
       })}
     >
       <Tab.Screen name="Home" component={Home} />

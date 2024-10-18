@@ -3,12 +3,14 @@ import { View, TextInput, Button, FlatList, StyleSheet } from 'react-native';
 import { MangaApi } from '../../../services/api'; // Importe sua classe MangaApi
 
 import MangaItem from '../../../components/MangaItem'; // Importe o componente MangaItem
-import { Manga } from '../../../models/Manga';
+import { MangaSearchResponse } from '../../../models/Manga';
+import { styles } from './styles';
+import theme from '../../../theme';
 
-
+// CRIAR O LOADING E APLICAR
 export default function Search() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [mangaList, setMangaList] = useState<Manga[]>([]);
+  const [mangaList, setMangaList] = useState<MangaSearchResponse[]>([]);
   const mangaApi = new MangaApi();
 
   const handleSearchSubmit = async () => {
@@ -24,7 +26,6 @@ export default function Search() {
 
       // Atualiza o estado com a lista de mangás
       setMangaList(mangasList);
-      console.log(mangasList);
     } catch (error) {
       console.error('Erro ao buscar mangás:', error);
     }
@@ -35,13 +36,13 @@ export default function Search() {
       <TextInput
         style={styles.input}
         placeholder="Buscar mangá..."
-        cursorColor={'gray'}
+        cursorColor={theme.colors.white}
+        placeholderTextColor={theme.colors.white}
+        selectionColor={theme.colors.white}
         value={searchTerm}
         onChangeText={setSearchTerm} // Atualiza o valor do termo de busca
         onSubmitEditing={handleSearchSubmit} // Executa a busca ao pressionar Enter
       />
-      <Button title="Buscar" onPress={handleSearchSubmit} />
-
       {/* Exibe a lista de mangás encontrados */}
       <FlatList
         data={mangaList}
@@ -52,16 +53,3 @@ export default function Search() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 20,
-    borderColor: 'gray',
-  },
-});

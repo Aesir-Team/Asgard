@@ -7,10 +7,8 @@ import { AppNavigator } from "./StackNavigator";
 export function Routes() {
 
   return (
-
     <NavigationContainer>
       <AppNavigator />
     </NavigationContainer>
-
   )
 }

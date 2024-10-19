@@ -5,6 +5,10 @@ export declare global {
       MangaDetail: {
         manga: Manga;
       };
+      MangaChapter: {
+        chapterName: String;
+        mangaName: String;
+      };
     }
   }
 }

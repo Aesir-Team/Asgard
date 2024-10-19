@@ -31,6 +31,14 @@ export const styles = StyleSheet.create({
     color: theme.colors.white,
     marginBottom: 5,
   },
+  headerSinopseView: {
+    flex: 1,
+    backgroundColor: theme.colors.purpleDark,
+    borderRadius: 20,
+    marginBottom: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
   headerDescription: {
     flex: 1,
     color: theme.colors.white,

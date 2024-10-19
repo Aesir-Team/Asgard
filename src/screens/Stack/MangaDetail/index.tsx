@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { MangaDetailResponse } from '../../../models/Manga';
 import { Image } from 'expo-image';
 import { MangaApi } from '../../../services/api';
@@ -10,6 +10,7 @@ import { styles } from './styles';
 import theme from '../../../theme';
 import { Loading } from '../../../components/Loading';
 import _ from 'lodash';
+import { normalizeTitle } from '../../../utils';
 
 type RouteParams = {
   manga: MangaDetailResponse;
@@ -19,14 +20,10 @@ export function MangaDetail() {
   const [mangaDetail, setMangaDetail] = useState<MangaDetailResponse | null>(null);
   const [loading, setLoading] = useState(true); // Estado para indicar carregamento
   const [error, setError] = useState<string | null>(null); // Estado para capturar erros
-
   const route = useRoute();
   const { manga } = route.params as RouteParams;
   const mangaApi = new MangaApi();
-
-  function normalizeTitle(title: string): string {
-    return _.kebabCase(title); // Converte para kebab case
-  }
+  const navigation = useNavigation();
 
   useEffect(() => {
     fetchMangaDetail()
@@ -47,6 +44,11 @@ export function MangaDetail() {
       )
     }
   };
+
+  const handleChapterPress = (chapterName: string, mangaName: string) => {
+    navigation.navigate("MangaChapter", { chapterName, mangaName });
+  }
+
   if (loading) {
     return (<Loading />)
   }
@@ -72,7 +74,7 @@ export function MangaDetail() {
           <Text style={styles.headerTitle}>{mangaDetail?.title}</Text>
           {mangaDetail?.description &&
             (
-              <View style={{ flex: 1, backgroundColor: theme.colors.purpleDark, borderRadius: 20, marginBottom: 20, paddingHorizontal: 20, paddingVertical: 10 }}>
+              <View style={styles.headerSinopseView}>
                 <Text style={styles.headerSinopse}>Sinopse</Text>
                 <Text style={styles.headerDescription}> {mangaDetail?.description}</Text>
               </View>
@@ -82,9 +84,12 @@ export function MangaDetail() {
       keyExtractor={(item, index) => index.toString()}
       renderItem={({ item }) =>
         <ChapterItem
-          title={item.title}
-          link={item.link}
-          releaseDate={item.releaseDate}
+          data={item}
+          onPress={() => {
+            if (mangaDetail?.title) {
+              handleChapterPress(item.title, mangaDetail.title);
+            }
+          }}
         />
       }
     />

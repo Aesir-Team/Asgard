@@ -34,7 +34,7 @@ export function TabRoutes() {
         tabBarActiveTintColor: theme.colors.purpleLight,
         tabBarInactiveTintColor: theme.colors.white,
         tabBarStyle: {
-          backgroundColor: theme.colors.purpleDark, // Cor de fundo da tabBar
+          backgroundColor: theme.colors.purpleDark,// Cor de fundo da tabBar
         },
         headerStyle: {
           backgroundColor: theme.colors.purpleDark, // Cor de fundo do header (parte superior)
@@ -42,9 +42,9 @@ export function TabRoutes() {
         headerTintColor: theme.colors.white, // Cor dos textos e ícones no header
       })}
     >
-      <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Search" component={Search} />
-      <Tab.Screen name="Download" component={Download} />
+      <Tab.Screen name="Home" component={Home} options={{ headerTitleAlign: 'center' }} />
+      <Tab.Screen name="Search" component={Search} options={{ headerTitleAlign: 'center' }} />
+      <Tab.Screen name="Download" component={Download} options={{ headerTitleAlign: 'center' }} />
     </Tab.Navigator>
   );
 }

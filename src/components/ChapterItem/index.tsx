@@ -1,14 +1,19 @@
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity, TouchableOpacityProps } from "react-native";
 import { Chapter } from "../../models/Manga";
 import { styles } from "./styles";
 
+type ChapterItemProps = TouchableOpacityProps & {
+  data: Chapter;
+}
 
-export function ChapterItem(Data: Chapter) {
+export function ChapterItem({ data, ...rest }: ChapterItemProps) {
   return (
     <TouchableOpacity
-      style={styles.container}>
+      style={styles.container}
+      {...rest}
+    >
       <Text style={styles.text}>
-        {Data.title}
+        {data.title}
       </Text>
     </TouchableOpacity>)
 }

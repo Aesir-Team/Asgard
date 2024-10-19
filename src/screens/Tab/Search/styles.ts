@@ -14,7 +14,7 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
     borderColor: theme.colors.white,
     color: theme.colors.white,
-    fontSize: theme.font_size.large,
-    fontFamily: theme.font_family.regular,
+    fontSize: theme.font_size.medium,
+    fontFamily: theme.font_family.medium,
   },
 });

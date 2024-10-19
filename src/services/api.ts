@@ -24,8 +24,8 @@ export class MangaApi {
   }
 
   // Busca uma lista de mangás com base na pesquisa
-  async searchManga(name: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/search?q=${name}`);
+  async searchManga(mangaName: string): Promise<any> {
+    const response = await fetch(`${this.baseUrl}/search?q=${mangaName}`);
     if (!response.ok) {
       throw new Error("Erro ao buscar mangás");
     }
@@ -33,8 +33,8 @@ export class MangaApi {
   }
 
   // Recupera um mangá específico com capítulos
-  async getManga(urlLink: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/manga?q=${urlLink}`);
+  async getManga(mangaName: string): Promise<any> {
+    const response = await fetch(`${this.baseUrl}/manga?q=${mangaName}`);
     if (!response.ok) {
       throw new Error("Erro ao buscar o mangá");
     }
@@ -42,11 +42,22 @@ export class MangaApi {
   }
 
   // Recupera todas as imagens de um capítulo
-  async getImages(urlLink: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/images?q=${urlLink}`);
+  async getImages(mangaName: string, chapterName: string): Promise<any> {
+    const response = await fetch(
+      `${this.baseUrl}/images?q=${mangaName}/${chapterName}`
+    );
+
     if (!response.ok) {
       throw new Error("Erro ao buscar imagens do capítulo");
     }
-    return response.json();
+
+    // Aguarda a resposta JSON
+    const images = await response.json();
+
+    // Ordena as chaves numericamente e recria o objeto
+    const sortedImages = Object.keys(images)
+      .sort((a, b) => Number(a) - Number(b))
+      .map((key) => images[key]);
+    return sortedImages;
   }
 }

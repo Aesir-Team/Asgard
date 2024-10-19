@@ -11,7 +11,10 @@ const App = () => {
     fontsLoaded ?
       <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
         <Routes />
-        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor="transparent"
+          translucent />
       </View> : <Loading />
   );
 };

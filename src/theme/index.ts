@@ -8,14 +8,14 @@ export default {
   },
   font_family: {
     regular: "NunitoSans_400Regular",
-    medium: "NunitoSans_500Medium",
+    medium: "NunitoSans_600SemiBold",
     bold: "NunitoSans_700Bold",
   },
   font_size: {
-    small: 12,
-    regular: 14,
-    medium: 16,
-    large: 18,
-    xlarge: 20,
+    small: 14,
+    regular: 18,
+    medium: 22,
+    large: 26,
+    xlarge: 32,
   },
 };

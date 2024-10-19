@@ -21,8 +21,8 @@ export const styles = StyleSheet.create({
 
   mangaTitle: {
     paddingHorizontal: 5,
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: theme.font_size.regular,
+    fontFamily: theme.font_family.bold,
     color: theme.colors.white,
     flex: 1, // Permite que o título ocupe o espaço restante
   },

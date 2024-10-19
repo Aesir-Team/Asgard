@@ -36,6 +36,7 @@ export function MangaDetail() {
     try {
       const response = await mangaApi.getManga(normalizeTitle(manga.title));
       setMangaDetail(response[0]);
+      console.log(response[0].description);
     } catch (error) {
       setError('Não foi possível carregar os detalhes do manga.');
     } finally {
@@ -60,15 +61,22 @@ export function MangaDetail() {
   return (
     <FlatList
       data={mangaDetail?.chapters}
-      style={styles.list}
+      style={styles.container}
       ListHeaderComponent={
-        <SafeAreaView style={styles.container}>
-          <Image
-            source={{ uri: mangaDetail?.imageUrl }}
-            style={styles.banner}
-            contentFit='contain' />
-          <Text style={{ color: theme.colors.white }}> Titulo: {mangaDetail?.title}</Text>
-          <Text> DESCRIÇÃO: {mangaDetail?.description}</Text>
+        <SafeAreaView style={styles.headerContainer}>
+          {mangaDetail?.imageUrl &&
+            <Image
+              source={{ uri: mangaDetail.imageUrl }}
+              style={styles.headerBanner}
+              contentFit='contain' />}
+          <Text style={styles.headerTitle}>{mangaDetail?.title}</Text>
+          {mangaDetail?.description &&
+            (
+              <View style={{ flex: 1, backgroundColor: theme.colors.purpleDark, borderRadius: 20, marginBottom: 20, paddingHorizontal: 20, paddingVertical: 10 }}>
+                <Text style={styles.headerSinopse}>Sinopse</Text>
+                <Text style={styles.headerDescription}> {mangaDetail?.description}</Text>
+              </View>
+            )}
         </SafeAreaView>
       }
       keyExtractor={(item, index) => index.toString()}

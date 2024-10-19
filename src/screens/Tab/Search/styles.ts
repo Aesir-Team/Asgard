@@ -11,8 +11,10 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     padding: 10,
-    marginBottom: 30,
+    marginBottom: 20,
     borderColor: theme.colors.white,
     color: theme.colors.white,
+    fontSize: theme.font_size.large,
+    fontFamily: theme.font_family.regular,
   },
 });

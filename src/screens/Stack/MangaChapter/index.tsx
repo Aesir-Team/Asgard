@@ -1,20 +1,33 @@
 import { useRoute } from "@react-navigation/native";
-import { FlatList, Image as ImageRN, Dimensions } from "react-native";
+import { ScrollView, Image as ImageRN, Dimensions, View, ActivityIndicator } from "react-native";
 import { MangaApi } from "../../../services/api";
 import { normalizeTitle } from "../../../utils";
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import { Image } from "expo-image";
 
 type RouteParams = {
   chapterName: string;
   mangaName: string;
-}
+};
 
-const { width } = Dimensions.get('window'); // Obter apenas a largura da tela
+const { width } = Dimensions.get('window');
+
+const MangaImage = memo(({ uri, aspectRatio }: { uri: string, aspectRatio: number }) => {
+  return (
+    <View style={{ width: '100%', aspectRatio }}>
+      <Image
+        source={{ uri }}
+        style={{ width: '100%', height: '100%' }}
+        contentFit="contain"
+      />
+    </View>
+  );
+});
 
 export function MangaChapter() {
   const [mangaUrlList, setMangaUrlList] = useState<string[]>([]);
   const [imageSizes, setImageSizes] = useState<{ width: number; height: number }[]>([]);
+  const [loading, setLoading] = useState(true);
   const route = useRoute();
   const { chapterName, mangaName } = route.params as RouteParams;
   const mangaApi = new MangaApi();
@@ -24,50 +37,56 @@ export function MangaChapter() {
   }, []);
 
   const getChapters = async () => {
+    setLoading(true);
     const normalizedMangaName = normalizeTitle(mangaName);
     const normalizedChapterName = normalizeTitle(chapterName);
     const response = await mangaApi.getImages(normalizedMangaName, normalizedChapterName);
     setMangaUrlList(response);
 
     const sizes: { width: number; height: number }[] = [];
-    for (let i = 0; i < response.length; i++) {
-      ImageRN.getSize(response[i], (imgWidth, imgHeight) => {
-        sizes[i] = { width: imgWidth, height: imgHeight };
-        if (sizes.length === response.length) {
-          setImageSizes(sizes);
-        }
-      },
-        (error) => {
-          console.error(`Erro ao obter a dimensão da imagem ${response[i]}:`, error);
-        });
-    }
+    let promises = response.map((imageUri: string, index: number) => {
+      return new Promise((resolve) => {
+        ImageRN.getSize(
+          imageUri,
+          (imgWidth, imgHeight) => {
+            sizes[index] = { width: imgWidth, height: imgHeight };
+            resolve(null);
+          },
+          (error) => {
+            console.error(`Erro ao obter a dimensão da imagem ${imageUri}:`, error);
+            resolve(null); // Ignora erro
+          }
+        );
+      });
+    });
+
+    await Promise.all(promises);
+    setImageSizes(sizes);
+    setLoading(false);
   };
 
-  return (
-    <FlatList
-      style={{ flex: 1 }}
-      data={mangaUrlList}
-      keyExtractor={(item, index) => String(index)}
-      maxToRenderPerBatch={1}
-      renderItem={({ item, index }) => {
-        const imgWidth = imageSizes[index]?.width || width;
-        const imgHeight = imageSizes[index]?.height || 1; // Evitar divisão por zero
-        const aspectRatio = imgWidth / imgHeight; // Calcular a proporção da imagem
+  if (loading) {
+    return <ActivityIndicator size="large" color="#0000ff" />;
+  }
 
-        return (
-          <Image
-            source={{ uri: item }}
-            style={{
-              width: '100%',
-              aspectRatio// Mantém a proporção da imagem automaticamente
-            }}
-            contentFit="contain" // Ajusta a imagem para caber na tela mantendo a proporção
-          />
-        );
-      }}
-      windowSize={2}
-      updateCellsBatchingPeriod={50}
-      removeClippedSubviews={true}
-    />
+  return (
+    <ScrollView style={{ flex: 1 }}>
+      {mangaUrlList.map((item, index) => {
+        const imgWidth = imageSizes[index]?.width || width;
+        const imgHeight = imageSizes[index]?.height || 1;
+        const aspectRatio = imgWidth / imgHeight;
+
+        if (!imageSizes[index]) {
+          // Placeholder para imagem que ainda não teve o tamanho calculado
+          return (
+            <View key={index} style={{ width: '100%', aspectRatio: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size="small" color="#0000ff" />
+            </View>
+          );
+        }
+
+        return <MangaImage key={index} uri={item} aspectRatio={aspectRatio} />;
+      })}
+    </ScrollView>
   );
 }

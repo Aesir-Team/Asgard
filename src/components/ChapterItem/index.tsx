@@ -1,20 +1,23 @@
-import { Text, TouchableOpacity, TouchableOpacityProps } from "react-native";
-import { Chapter } from "../../models/Manga";
+import { Text, TouchableOpacity, TouchableOpacityProps, View } from "react-native";
 import { styles } from "./styles";
+import { Check } from 'phosphor-react-native'; // Importa o ícone
+import theme from "../../theme";
 
 type ChapterItemProps = TouchableOpacityProps & {
-  data: Chapter;
+  chapterName: string;
+  downloaded?: boolean; // Adiciona a propriedade para indicar se o capítulo foi baixado
 }
 
-export function ChapterItem({ data, ...rest }: ChapterItemProps) {
+export function ChapterItem({ chapterName, downloaded, ...rest }: ChapterItemProps) {
   return (
     <TouchableOpacity
       style={styles.container}
       {...rest}
     >
-      <Text style={styles.text}>
-        {data.title}
+      <Text style={downloaded ? [styles.text, { paddingLeft: 30 }] : styles.text} numberOfLines={1} ellipsizeMode="tail">
+        {chapterName}
       </Text>
-    </TouchableOpacity>)
+      {downloaded && <Check size={24} color={theme.colors.purpleDark} style={styles.downloadIcon} weight='bold' />}
+    </TouchableOpacity>
+  );
 }
-

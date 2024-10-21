@@ -1,63 +1,98 @@
+import axios from "axios";
+import * as FileSystem from "expo-file-system";
 export class MangaApi {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = "http://192.168.2.54:3000";
+    this.baseUrl = "http://192.168.2.16:3000";
   }
 
   // Recupera uma lista de todos os mangás
   async getAllManga(page: number = 1): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/all-manga?page=${page}`);
-    if (!response.ok) {
+    try {
+      const response = await axios.get(`${this.baseUrl}/all-manga`, {
+        params: { page },
+      });
+      return response.data;
+    } catch (error) {
       throw new Error("Erro ao buscar a lista de mangás");
     }
-    return response.json();
   }
 
   // Recupera uma lista de mangás mais populares
   async getMostPopulars(): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/most-populars`);
-    if (!response.ok) {
+    try {
+      const response = await axios.get(`${this.baseUrl}/most-populars`);
+      return response.data;
+    } catch (error) {
       throw new Error("Erro ao buscar os mangás mais populares");
     }
-    return response.json();
   }
 
   // Busca uma lista de mangás com base na pesquisa
   async searchManga(mangaName: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/search?q=${mangaName}`);
-    if (!response.ok) {
+    try {
+      const response = await axios.get(`${this.baseUrl}/search`, {
+        params: { q: mangaName },
+      });
+      return response.data;
+    } catch (error) {
       throw new Error("Erro ao buscar mangás");
     }
-    return response.json();
   }
 
   // Recupera um mangá específico com capítulos
   async getManga(mangaName: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/manga?q=${mangaName}`);
-    if (!response.ok) {
+    try {
+      const response = await axios.get(`${this.baseUrl}/manga`, {
+        params: { q: mangaName },
+      });
+      return response.data;
+    } catch (error) {
       throw new Error("Erro ao buscar o mangá");
     }
-    return response.json();
   }
 
   // Recupera todas as imagens de um capítulo
   async getImages(mangaName: string, chapterName: string): Promise<any> {
-    const response = await fetch(
-      `${this.baseUrl}/images?q=${mangaName}/${chapterName}`
-    );
+    try {
+      const response = await axios.get(`${this.baseUrl}/images`, {
+        params: { q: `${mangaName}/${chapterName}` },
+      });
 
-    if (!response.ok) {
+      // Ordena as chaves numericamente e retorna as imagens ordenadas
+      const sortedImages = Object.keys(response.data)
+        .sort((a, b) => Number(a) - Number(b))
+        .map((key) => response.data[key]);
+
+      return sortedImages;
+    } catch (error) {
       throw new Error("Erro ao buscar imagens do capítulo");
     }
+  }
+  async getAllDownloadedMangas(): Promise<string[]> {
+    try {
+      const baseDirectoryUri = `${FileSystem.documentDirectory}media/`;
 
-    // Aguarda a resposta JSON
-    const images = await response.json();
+      const items = await FileSystem.readDirectoryAsync(baseDirectoryUri);
+      const dirList = items.filter(
+        (item) => item !== ".DS_Store" && !item.startsWith(".")
+      );
+      return dirList;
+    } catch (error) {
+      console.error("Erro ao listar diretórios:", error);
+      return [];
+    }
+  }
+  async getDownloadedChapters(mangaName: string): Promise<string[] | false> {
+    const baseDirectoryUri = `${FileSystem.documentDirectory}media/${mangaName}/`;
 
-    // Ordena as chaves numericamente e recria o objeto
-    const sortedImages = Object.keys(images)
-      .sort((a, b) => Number(a) - Number(b))
-      .map((key) => images[key]);
-    return sortedImages;
+    try {
+      const items = await FileSystem.readDirectoryAsync(baseDirectoryUri);
+      const dirList = items.filter((item) => item !== ".DS_Store");
+      return dirList;
+    } catch {
+      return false;
+    }
   }
 }

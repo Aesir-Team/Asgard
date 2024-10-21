@@ -19,11 +19,23 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
   },
 
+  mangaContent: {
+    flex: 1, // Ocupa o espaço restante
+    flexDirection: 'row', // Define a direção das linhas e ícones
+    alignItems: 'center', // Alinha verticalmente
+    justifyContent: 'space-between', // Espaça o texto e o ícone
+    marginLeft: 10, // Dá um espaço entre a imagem e o conteúdo
+  },
+
   mangaTitle: {
-    paddingHorizontal: 5,
     fontSize: theme.font_size.regular,
     fontFamily: theme.font_family.bold,
     color: theme.colors.white,
-    flex: 1, // Permite que o título ocupe o espaço restante
+    flexShrink: 1, // Permite que o texto encolha e quebre em linhas
+    flexWrap: 'wrap', // Permite que o texto quebre em múltiplas linhas
+  },
+
+  downloadIcon: {
+    marginRight: 10, // Espaço entre o título e o ícone
   },
 });

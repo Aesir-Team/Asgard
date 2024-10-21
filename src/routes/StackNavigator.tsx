@@ -1,13 +1,28 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { TabRoutes } from './TabNavigator'; // Importe o TabNavigator
+import { TabRoutes, TabRoutesProps } from './TabNavigator'; // Importe o TabNavigator
 import MangaDetail from '../screens/Stack/MangaDetail';
 import theme from '../theme'; // Certifique-se de que o theme está importado corretamente
 import { MangaChapter } from '../screens/Stack/MangaChapter';
+import { NavigatorScreenParams, useNavigation } from '@react-navigation/native';
 
-const Stack = createStackNavigator();
+
+export type StackRoutesProps = {
+  Tab: NavigatorScreenParams<TabRoutesProps>;
+  MangaDetail: {
+    mangaName: string;
+    initialRoute: string;
+  };
+  MangaChapter: {
+    imagesUrls: string[];
+    chapterName: string;
+  };
+}
+
+const Stack = createStackNavigator<StackRoutesProps>();
 
 export function AppNavigator() {
+
   return (
     <Stack.Navigator>
       <Stack.Screen

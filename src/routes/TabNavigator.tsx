@@ -5,8 +5,15 @@ import Home from '../screens/Tab/Home';
 import Search from '../screens/Tab/Search';
 import Download from '../screens/Tab/Download';
 import theme from '../theme';
+import { } from '@react-navigation/native';
 
-const Tab = createBottomTabNavigator();
+export type TabRoutesProps = {
+  Home: undefined;
+  Search: undefined;
+  Download: undefined;
+}
+
+const Tab = createBottomTabNavigator<TabRoutesProps>();
 
 export function TabRoutes() {
   return (

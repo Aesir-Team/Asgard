@@ -16,14 +16,13 @@ export default function Search() {
   const navigation = useNavigation();
 
   useEffect(() => {
-    // Carregar a lista de mangás baixados ao iniciar
-    const loadDownloadedMangas = async () => {
-      const downloaded = await mangaApi.getAllDownloadedMangas();
-      setDownloadedMangas(downloaded);
-    };
     loadDownloadedMangas();
-  }, []);
+  });
 
+  const loadDownloadedMangas = async () => {
+    const downloaded = await mangaApi.getAllDownloadedMangas();
+    setDownloadedMangas(downloaded);
+  };
   const handleSearchSubmit = async () => {
     try {
       // Faz a requisição de busca na API

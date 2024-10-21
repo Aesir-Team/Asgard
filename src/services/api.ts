@@ -80,7 +80,7 @@ export class MangaApi {
       );
       return dirList;
     } catch (error) {
-      console.error("Erro ao listar diretórios:", error);
+      //console.error("Erro ao listar diretórios:", error);
       return [];
     }
   }

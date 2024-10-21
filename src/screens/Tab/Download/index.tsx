@@ -8,6 +8,7 @@ import { MangaApi } from '../../../services/api';
 
 export default function Download() {
   const [directories, setDirectories] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation()
   const mangaApi = new MangaApi();
 
@@ -19,8 +20,10 @@ export default function Download() {
 
   const fetchDirectories = async () => {
     try {
+      setLoading(true);
       const downloadedMangas = await mangaApi.getAllDownloadedMangas();
       setDirectories(downloadedMangas);
+      setLoading(false);
     } catch (error) {
       console.error('Erro ao listar diretórios:', error);
     }

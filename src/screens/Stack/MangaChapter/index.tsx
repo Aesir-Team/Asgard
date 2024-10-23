@@ -27,8 +27,8 @@ export function MangaChapter({ route, navigation }: StackRoutes<'MangaChapter'>)
     setLoading(true);
     try {
       const indexOfActualChapter = chaptersList.indexOf(chapterName);
-      if (indexOfActualChapter > 0) {
-        const nextChapter = chaptersList[indexOfActualChapter - 1];
+      if (indexOfActualChapter < chaptersList.length - 1) {
+        const nextChapter = chaptersList[indexOfActualChapter + 1]; // Próximo na lista invertida
         const response = await mangaApi.getDownloadedImages(mangaName, nextChapter);
         navigation.replace('MangaChapter', {
           imagesUrls: response,
@@ -38,7 +38,7 @@ export function MangaChapter({ route, navigation }: StackRoutes<'MangaChapter'>)
           chaptersList
         });
       } else {
-        Alert.alert("Aviso", "Você já está no primeiro capítulo.");
+        Alert.alert("Aviso", "Você já está no último capítulo.");
       }
     } catch (error) {
       console.error(error);
@@ -47,6 +47,32 @@ export function MangaChapter({ route, navigation }: StackRoutes<'MangaChapter'>)
       setLoading(false);
     }
   };
+
+  const handleBackPress = async () => {
+    setLoading(true);
+    try {
+      const indexOfActualChapter = chaptersList.indexOf(chapterName);
+      if (indexOfActualChapter > 0) {
+        const previousChapter = chaptersList[indexOfActualChapter - 1]; // Capítulo anterior na lista, mas "seguinte" na narrativa
+        const response = await mangaApi.getDownloadedImages(mangaName, previousChapter);
+        navigation.replace('MangaChapter', {
+          imagesUrls: response,
+          chapterName: previousChapter,
+          initialRoute: initialRoute,
+          mangaName: mangaName,
+          chaptersList
+        });
+      } else {
+        Alert.alert("Aviso", "Você já está no primeiro capítulo.");
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Erro", "Não foi possível carregar o capítulo anterior.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const getImages = async () => {
     setLoading(true);
@@ -127,7 +153,7 @@ export function MangaChapter({ route, navigation }: StackRoutes<'MangaChapter'>)
                 <Text style={{ textAlign: 'center', color: theme.colors.white, fontSize: theme.font_size.large }}>Anterior</Text>
               </TouchableOpacity> : null}
             {hasNext ?
-              <TouchableOpacity onPress={handleNextPress} style={{ flex: 1, height: 60, backgroundColor: theme.colors.purpleDark, borderRadius: 20, justifyContent: 'center', alignItems: 'center' }}>
+              <TouchableOpacity onPress={handleBackPress} style={{ flex: 1, height: 60, backgroundColor: theme.colors.purpleDark, borderRadius: 20, justifyContent: 'center', alignItems: 'center' }}>
                 <Text style={{ textAlign: 'center', color: theme.colors.white, fontSize: theme.font_size.large }}>Próximo</Text>
               </TouchableOpacity> : null}
           </View>

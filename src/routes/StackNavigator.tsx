@@ -15,7 +15,10 @@ export type StackRoutesProps = {
   };
   MangaChapter: {
     imagesUrls: string[];
+    chaptersList: string[];
     chapterName: string;
+    initialRoute: string;
+    mangaName: string;
   };
 }
 

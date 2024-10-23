@@ -10,7 +10,6 @@ type ChapterItemProps = TouchableOpacityProps & {
 }
 
 export function ChapterItem({ chapterName, downloaded, loading, ...rest }: ChapterItemProps) {
-  console.log(`Loading in ChapterItem: ${loading}`);
   return (
     <TouchableOpacity
       style={styles.container}

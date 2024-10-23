@@ -38,6 +38,7 @@ export function TabRoutes() {
 
           return <Ionicons name={iconName as keyof typeof Ionicons.glyphMap} size={size} color={color} />;
         },
+        lazy: true,
         tabBarActiveTintColor: theme.colors.purpleLight,
         tabBarInactiveTintColor: theme.colors.white,
         tabBarStyle: {

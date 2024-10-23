@@ -1,8 +1,10 @@
-import { FlatList, Image as ImageRN, Dimensions, View } from "react-native";
+import { FlatList, Image as ImageRN, Dimensions, View, TouchableOpacity, Text, Alert } from "react-native";
 import { useEffect, useState } from "react";
 import { Loading } from "../../../components/Loading";
 import { MangaImage } from "../../../components/MangaImage";
 import { StackRoutes } from '../../../types/navigation';
+import theme from "../../../theme";
+import { MangaApi } from "../../../services/api";
 
 const { width } = Dimensions.get('window');
 
@@ -10,20 +12,48 @@ export function MangaChapter({ route, navigation }: StackRoutes<'MangaChapter'>)
   const [imageSizes, setImageSizes] = useState<{ width: number; height: number }[]>([]);
   const [imageLoadingStatus, setImageLoadingStatus] = useState<boolean[]>([]);
   const [loading, setLoading] = useState(true);
-  const { imagesUrls, chapterName } = route.params
+  const { imagesUrls, chapterName, initialRoute, mangaName, chaptersList } = route.params;
+  const [hasNext, setHasNext] = useState<boolean>(true);
+  const [hasBack, setHasBack] = useState<boolean>(true);
+  const mangaApi = new MangaApi();
 
   useEffect(() => {
+    onPageLoad();
+    getImages();
     navigation.setOptions({ title: chapterName });
-    getChapters();
   }, []);
 
-  const getChapters = async () => {
+  const handleNextPress = async () => {
+    setLoading(true);
+    try {
+      const indexOfActualChapter = chaptersList.indexOf(chapterName);
+      if (indexOfActualChapter > 0) {
+        const nextChapter = chaptersList[indexOfActualChapter - 1];
+        const response = await mangaApi.getDownloadedImages(mangaName, nextChapter);
+        navigation.replace('MangaChapter', {
+          imagesUrls: response,
+          chapterName: nextChapter,
+          initialRoute: initialRoute,
+          mangaName: mangaName,
+          chaptersList
+        });
+      } else {
+        Alert.alert("Aviso", "Você já está no primeiro capítulo.");
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Erro", "Não foi possível carregar o próximo capítulo.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getImages = async () => {
     setLoading(true);
 
     const sizes: { width: number; height: number }[] = [];
     const loadingStatus = new Array(imagesUrls.length).fill(true);
     setImageLoadingStatus(loadingStatus);
-
     let promises = imagesUrls.map((imageUri: string, index: number) => {
       return new Promise((resolve) => {
         ImageRN.getSize(
@@ -45,6 +75,12 @@ export function MangaChapter({ route, navigation }: StackRoutes<'MangaChapter'>)
     setLoading(false);
   };
 
+  const onPageLoad = async () => {
+    const indexOfActualChapter = chaptersList.indexOf(chapterName);
+    setHasBack(indexOfActualChapter < chaptersList.length - 1);
+    setHasNext(indexOfActualChapter > 0);
+  };
+
   const handleImageLoad = (index: number) => {
     setImageLoadingStatus(prevStatus => {
       const newStatus = [...prevStatus];
@@ -63,6 +99,7 @@ export function MangaChapter({ route, navigation }: StackRoutes<'MangaChapter'>)
       keyExtractor={(item, index) => String(index)}
       initialNumToRender={2} // Renderiza 2 imagens inicialmente
       maxToRenderPerBatch={3} // Renderiza 3 imagens por vez ao rolar
+      windowSize={5}
       removeClippedSubviews={true}
       renderItem={({ item, index }) => {
         const imgWidth = imageSizes[index]?.width || width;
@@ -79,6 +116,20 @@ export function MangaChapter({ route, navigation }: StackRoutes<'MangaChapter'>)
               aspectRatio={aspectRatio}
               onLoad={() => handleImageLoad(index)} // Atualiza o status quando a imagem for carregada
             />
+          </View>
+        );
+      }}
+      ListFooterComponent={() => {
+        return (
+          <View style={{ flex: 1, width: "100%", height: 80, backgroundColor: theme.colors.white, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 10, flexDirection: 'row', gap: 10, borderTopWidth: 2 }} >
+            {hasBack ?
+              <TouchableOpacity onPress={handleNextPress} style={{ flex: 1, height: 60, backgroundColor: theme.colors.purpleDark, borderRadius: 20, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ textAlign: 'center', color: theme.colors.white, fontSize: theme.font_size.large }}>Anterior</Text>
+              </TouchableOpacity> : null}
+            {hasNext ?
+              <TouchableOpacity onPress={handleNextPress} style={{ flex: 1, height: 60, backgroundColor: theme.colors.purpleDark, borderRadius: 20, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ textAlign: 'center', color: theme.colors.white, fontSize: theme.font_size.large }}>Próximo</Text>
+              </TouchableOpacity> : null}
           </View>
         );
       }}

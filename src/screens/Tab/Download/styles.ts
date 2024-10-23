@@ -7,6 +7,16 @@ export const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: theme.colors.background,
   },
+  noDownloadedContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  noDownloadedTitle: {
+    textAlign: "center",
+    color: theme.colors.white,
+    fontSize: theme.font_size.large,
+  },
   itemContainer: {
     padding: 16,
     borderBottomWidth: 1,

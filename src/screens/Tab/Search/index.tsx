@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, TextInput, FlatList } from 'react-native';
 import { MangaApi } from '../../../services/api';
 import MangaItem from '../../../components/MangaItem';
@@ -6,33 +6,32 @@ import { MangaResponseProps } from '../../../models/Manga';
 import { styles } from './styles';
 import theme from '../../../theme';
 import { useNavigation } from '@react-navigation/native';
+import { useDebounce } from '../../../hooks/useDebounce';
 
-//CRIAR LOADING E APLICAR
 export default function Search() {
   const [searchTerm, setSearchTerm] = useState('');
   const [mangaList, setMangaList] = useState<MangaResponseProps[]>([]);
-  const [downloadedMangas, setDownloadedMangas] = useState<string[]>([]); // Lista de mangás baixados
+  const [downloadedMangas, setDownloadedMangas] = useState<string[]>([]);
   const mangaApi = new MangaApi();
   const navigation = useNavigation();
 
   useEffect(() => {
     loadDownloadedMangas();
-  });
+  }, []); // Chama apenas uma vez ao montar
 
   const loadDownloadedMangas = async () => {
     const downloaded = await mangaApi.getAllDownloadedMangas();
     setDownloadedMangas(downloaded);
   };
-  const handleSearchSubmit = async () => {
+
+  const handleSearchSubmit = async (term: string) => {
     try {
-      // Faz a requisição de busca na API
-      const response = await mangaApi.searchManga(searchTerm);
+      const response = await mangaApi.searchManga(term);
       const mangasList = response.map((manga: { title: string, imageUrl: string | null }) => ({
         title: manga.title,
         image: manga.imageUrl
       }));
 
-      // Atualiza o estado com a lista de mangás
       setMangaList(mangasList);
     } catch (error) {
       console.error('Erro ao buscar mangás:', error);
@@ -41,6 +40,12 @@ export default function Search() {
 
   const handleOnMangaPress = (mangaName: string) => {
     navigation.navigate('MangaDetail', { mangaName, initialRoute: 'Search' });
+  };
+
+  const handleSearchSubmitEditing = () => {
+    if (searchTerm.trim()) {
+      handleSearchSubmit(searchTerm.trim());
+    }
   };
 
   return (
@@ -53,7 +58,8 @@ export default function Search() {
         selectionColor={theme.colors.white}
         value={searchTerm}
         onChangeText={setSearchTerm}
-        onSubmitEditing={handleSearchSubmit}
+        onSubmitEditing={handleSearchSubmitEditing} // Adiciona o manipulador
+        returnKeyType="search" // Define o tipo de tecla de retorno
       />
 
       <FlatList
@@ -62,7 +68,7 @@ export default function Search() {
         renderItem={({ item }) => (
           <MangaItem
             manga={item}
-            downloaded={downloadedMangas.includes(item.title)} // Verifica se o mangá está baixado
+            downloaded={downloadedMangas.includes(item.title)}
             onPress={handleOnMangaPress}
           />
         )}

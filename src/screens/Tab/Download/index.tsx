@@ -1,21 +1,21 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
-import * as FileSystem from 'expo-file-system';
+import React, { useCallback, useState } from 'react';
+import { View, Text, FlatList } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { styles } from './styles';
 import MangaItem from '../../../components/MangaItem';
 import { MangaApi } from '../../../services/api';
+import theme from '../../../theme';
 
 export default function Download() {
   const [directories, setDirectories] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const navigation = useNavigation()
+  const navigation = useNavigation();
   const mangaApi = new MangaApi();
 
   useFocusEffect(
     useCallback(() => {
-      fetchDirectories()
-    }, []) // O array vazio indica que o efeito será executado ao cada vez que a tela for focada
+      fetchDirectories();
+    }, []) // Chama ao focar na tela
   );
 
   const fetchDirectories = async () => {
@@ -23,34 +23,32 @@ export default function Download() {
       setLoading(true);
       const downloadedMangas = await mangaApi.getAllDownloadedMangas();
       setDirectories(downloadedMangas);
-      setLoading(false);
     } catch (error) {
       console.error('Erro ao listar diretórios:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleOnMangaItemPress = (mangaName: string) => {
-    navigation.navigate('MangaDetail', { mangaName, initialRoute: 'Download' })
-  }
+    navigation.navigate('MangaDetail', { mangaName, initialRoute: 'Download' });
+  };
 
   return (
     <View style={styles.container}>
       {directories.length === 0 ? (
-        <View>
-          <Text>Nenhum diretório encontrado.</Text>
+        <View style={styles.noDownloadedContainer}>
+          <Text style={styles.noDownloadedTitle}>Nenhum Mangá Baixado!</Text>
         </View>
       ) : (
         <FlatList
           data={directories}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item: mangaName }) => (
-            <MangaItem manga={{ title: mangaName }} onPress={() => {
-              handleOnMangaItemPress(mangaName)
-            }} />
+            <MangaItem manga={{ title: mangaName }} onPress={() => handleOnMangaItemPress(mangaName)} />
           )}
         />
       )}
     </View>
   );
-};
-
+}

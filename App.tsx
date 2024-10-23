@@ -1,11 +1,22 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import Routes from './src/routes/routes';  // Importando o arquivo de rotas
+import { Routes } from './src/routes';
+import { StatusBar, View } from 'react-native';
+import { useFonts, NunitoSans_400Regular, NunitoSans_600SemiBold, NunitoSans_700Bold } from '@expo-google-fonts/nunito-sans'
+import { Loading } from './src/components/Loading';
+import theme from './src/theme';
 
-export default function App() {
+const App = () => {
+  const [fontsLoaded, error] = useFonts({ NunitoSans_400Regular, NunitoSans_600SemiBold, NunitoSans_700Bold });
   return (
-    <NavigationContainer>
-      <Routes />  
-    </NavigationContainer>
+    fontsLoaded ?
+      <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+        <Routes />
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor="transparent"
+          translucent />
+      </View> : <Loading />
   );
-}
+};
+
+export default App;

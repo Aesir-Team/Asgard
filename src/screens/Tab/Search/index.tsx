@@ -1,97 +1,78 @@
-import React, { useState } from 'react';
-import { View, TextInput, Button, FlatList, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { MangaApi } from '../../../services/api'; // Importe sua classe MangaApi
-
-interface Manga {
-  title: string;
-  image: string | null;
-}
+import React, { useEffect, useState } from 'react';
+import { View, TextInput, FlatList } from 'react-native';
+import { MangaApi } from '../../../services/api';
+import MangaItem from '../../../components/MangaItem';
+import { MangaResponseProps } from '../../../models/Manga';
+import { styles } from './styles';
+import theme from '../../../theme';
+import { useNavigation } from '@react-navigation/native';
+import { useDebounce } from '../../../hooks/useDebounce';
 
 export default function Search() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [mangaList, setMangaList] = useState<Manga[]>([]);
+  const [mangaList, setMangaList] = useState<MangaResponseProps[]>([]);
+  const [downloadedMangas, setDownloadedMangas] = useState<string[]>([]);
   const mangaApi = new MangaApi();
+  const navigation = useNavigation();
 
-  const handleSearchSubmit = async () => {
+  useEffect(() => {
+    loadDownloadedMangas();
+  }, []); // Chama apenas uma vez ao montar
+
+  const loadDownloadedMangas = async () => {
+    const downloaded = await mangaApi.getAllDownloadedMangas();
+    setDownloadedMangas(downloaded);
+  };
+
+  const handleSearchSubmit = async (term: string) => {
     try {
-      // Faz a requisição de busca na API
-      const response = await mangaApi.searchManga(searchTerm);
-
-      // Mapeia a resposta da API para extrair o título
+      const response = await mangaApi.searchManga(term);
       const mangasList = response.map((manga: { title: string, imageUrl: string | null }) => ({
         title: manga.title,
         image: manga.imageUrl
       }));
 
-      // Atualiza o estado com a lista de mangás
       setMangaList(mangasList);
-      console.log(mangasList);
     } catch (error) {
       console.error('Erro ao buscar mangás:', error);
     }
   };
 
-  const renderMangaItem = ({ item }: { item: Manga }) => (
-    <TouchableOpacity style={styles.mangaItem}>
-      {item.image ? <Image source={{ uri: item.image }} style={styles.mangaImage} /> : null}
-      <Text style={styles.mangaTitle} >{item.title}</Text>
-    </TouchableOpacity>
-  );
+  const handleOnMangaPress = (mangaName: string) => {
+    navigation.navigate('MangaDetail', { mangaName, initialRoute: 'Search' });
+  };
+
+  const handleSearchSubmitEditing = () => {
+    if (searchTerm.trim()) {
+      handleSearchSubmit(searchTerm.trim());
+    }
+  };
 
   return (
     <View style={styles.container}>
       <TextInput
         style={styles.input}
         placeholder="Buscar mangá..."
-        cursorColor={'gray'}
+        cursorColor={theme.colors.white}
+        placeholderTextColor={theme.colors.white}
+        selectionColor={theme.colors.white}
         value={searchTerm}
-        onChangeText={setSearchTerm} // Atualiza o valor do termo de busca
-        onSubmitEditing={handleSearchSubmit} // Executa a busca ao pressionar Enter
+        onChangeText={setSearchTerm}
+        onSubmitEditing={handleSearchSubmitEditing} // Adiciona o manipulador
+        returnKeyType="search" // Define o tipo de tecla de retorno
       />
-      <Button title="Buscar" onPress={handleSearchSubmit} />
 
-      {/* Exibe a lista de mangás encontrados */}
       <FlatList
         data={mangaList}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={renderMangaItem} // Renderiza cada item da lista
+        renderItem={({ item }) => (
+          <MangaItem
+            manga={item}
+            downloaded={downloadedMangas.includes(item.title)}
+            onPress={handleOnMangaPress}
+          />
+        )}
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 20,
-    borderColor: 'gray',
-  },
-  mangaItem: {
-    borderWidth: 1,
-    borderColor: 'gray',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 20,
-    borderRadius: 8,
-    padding: 10, // Adiciona um pouco de espaçamento ao redor do item
-  },
-  mangaImage: {
-
-    width: 70,
-    height: 90,
-    borderRadius: 8,
-  },
-  mangaTitle: {
-    paddingLeft: 10,
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'gray',
-    flex: 1, // Permite que o título ocupe o espaço restante
-  },
-});

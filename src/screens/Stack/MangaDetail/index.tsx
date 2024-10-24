@@ -34,7 +34,7 @@ export function MangaDetail({ route, navigation }: StackRoutes<'MangaDetail'>) {
         ),
       });
     }
-  }, [initialRoute, navigation]);
+  });
 
   useEffect(() => {
     fetchMangaDetail();
@@ -182,7 +182,6 @@ export function MangaDetail({ route, navigation }: StackRoutes<'MangaDetail'>) {
         </SafeAreaView>
       }
       keyExtractor={(item) => normalizeTitle(item.title)}
-      removeClippedSubviews={true}
       initialNumToRender={10}
       maxToRenderPerBatch={10}
       windowSize={5}

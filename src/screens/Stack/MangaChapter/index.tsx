@@ -1,4 +1,4 @@
-import { FlatList, Image as ImageRN, Dimensions, View, TouchableOpacity, Text, Alert } from "react-native";
+import { FlatList, Image as ImageRN, Dimensions, View, Alert } from "react-native";
 import { useEffect, useState } from "react";
 import { Loading } from "../../../components/Loading";
 import { MangaImage } from "../../../components/MangaImage";
@@ -6,6 +6,7 @@ import { StackRoutes } from '../../../types/navigation';
 import theme from "../../../theme";
 import { MangaApi } from "../../../services/api";
 import { normalizeTitle } from "../../../utils";
+import { Button } from "../../../components/Button";
 
 const { width } = Dimensions.get('window');
 
@@ -27,60 +28,25 @@ export function MangaChapter({ route, navigation }: StackRoutes<'MangaChapter'>)
     initialize();
   }, []);
 
-  const navigateToChapter = async (chapter: string, isNext: boolean) => {
-    setLoading(true);
-    try {
-      const normalizedMangaName = normalizeTitle(mangaName);
-      const normalizedChapterName = normalizeTitle(chapter);
-      const response = initialRoute === 'Search'
-        ? await mangaApi.getImages(normalizedMangaName, normalizedChapterName)
-        : await mangaApi.getDownloadedImages(mangaName, chapter);
-
-      navigation.replace('MangaChapter', {
-        imagesUrls: response,
-        chapterName: chapter,
-        initialRoute,
-        mangaName,
-        chaptersList
-      });
-    } catch (error) {
-      Alert.alert("Erro", `Não foi possível carregar o capítulo ${isNext ? 'seguinte' : 'anterior'}.`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleBackPress = async () => {
     setLoading(true);
     try {
       const indexOfActualChapter = chaptersList.indexOf(chapterName);
-      let previousChapter;
-
       if (indexOfActualChapter < chaptersList.length - 1) {
-        previousChapter = chaptersList[indexOfActualChapter + 1]; // Próximo na lista invertida
+        const previousChapter = chaptersList[indexOfActualChapter + 1];
+        const response = initialRoute === 'Search'
+          ? await mangaApi.getImages(normalizeTitle(mangaName), normalizeTitle(previousChapter))
+          : await mangaApi.getDownloadedImages(mangaName, previousChapter);
+
+        navigation.replace('MangaChapter', {
+          imagesUrls: response,
+          chapterName: previousChapter,
+          initialRoute,
+          mangaName,
+          chaptersList
+        });
       } else {
         Alert.alert("Aviso", "Você já está no último capítulo.");
-        return; // Retorna se não houver capítulo
-      }
-
-      if (initialRoute === 'Search') {
-        const response = await mangaApi.getImages(normalizeTitle(mangaName), normalizeTitle(previousChapter));
-        navigation.replace('MangaChapter', {
-          imagesUrls: response,
-          chapterName: previousChapter,
-          initialRoute,
-          mangaName,
-          chaptersList
-        });
-      } else {
-        const response = await mangaApi.getDownloadedImages(mangaName, previousChapter);
-        navigation.replace('MangaChapter', {
-          imagesUrls: response,
-          chapterName: previousChapter,
-          initialRoute,
-          mangaName,
-          chaptersList
-        });
       }
     } catch (error) {
       Alert.alert("Erro", "Não foi possível carregar o próximo capítulo.");
@@ -94,27 +60,18 @@ export function MangaChapter({ route, navigation }: StackRoutes<'MangaChapter'>)
     try {
       const indexOfActualChapter = chaptersList.indexOf(chapterName);
       if (indexOfActualChapter > 0) {
-        const nextChapter = chaptersList[indexOfActualChapter - 1]; // Capítulo anterior na lista, mas "seguinte" na narrativa
+        const nextChapter = chaptersList[indexOfActualChapter - 1];
+        const response = initialRoute === 'Search'
+          ? await mangaApi.getImages(normalizeTitle(mangaName), normalizeTitle(nextChapter))
+          : await mangaApi.getDownloadedImages(mangaName, nextChapter);
 
-        if (initialRoute === 'Search') {
-          const response = await mangaApi.getImages(normalizeTitle(mangaName), normalizeTitle(nextChapter));
-          navigation.replace('MangaChapter', {
-            imagesUrls: response,
-            chapterName: nextChapter,
-            initialRoute,
-            mangaName,
-            chaptersList
-          });
-        } else {
-          const response = await mangaApi.getDownloadedImages(mangaName, nextChapter);
-          navigation.replace('MangaChapter', {
-            imagesUrls: response,
-            chapterName: nextChapter,
-            initialRoute,
-            mangaName,
-            chaptersList
-          });
-        }
+        navigation.replace('MangaChapter', {
+          imagesUrls: response,
+          chapterName: nextChapter,
+          initialRoute,
+          mangaName,
+          chaptersList
+        });
       }
     } catch (error) {
       Alert.alert("Erro", "Não foi possível carregar o capítulo anterior.");
@@ -139,7 +96,7 @@ export function MangaChapter({ route, navigation }: StackRoutes<'MangaChapter'>)
           },
           (error) => {
             console.error(`Erro ao obter a dimensão da imagem ${imageUri}:`, error);
-            resolve(null); // Ignora erro
+            resolve(null);
           }
         );
       })
@@ -152,14 +109,14 @@ export function MangaChapter({ route, navigation }: StackRoutes<'MangaChapter'>)
 
   const onPageLoad = async () => {
     const indexOfActualChapter = chaptersList.indexOf(chapterName);
-    setHasBack(indexOfActualChapter < chaptersList.length - 1); // Se houver próximo capítulo
-    setHasNext(indexOfActualChapter > 0); // Se houver capítulo anterior
+    setHasBack(indexOfActualChapter < chaptersList.length - 1);
+    setHasNext(indexOfActualChapter > 0);
   };
 
   const handleImageLoad = (index: number) => {
     setImageLoadingStatus(prevStatus => {
       const newStatus = [...prevStatus];
-      newStatus[index] = false; // Atualiza o status de carregamento da imagem
+      newStatus[index] = false;
       return newStatus;
     });
   };
@@ -172,8 +129,8 @@ export function MangaChapter({ route, navigation }: StackRoutes<'MangaChapter'>)
     <FlatList
       data={imagesUrls}
       keyExtractor={(item, index) => String(index)}
-      initialNumToRender={2} // Renderiza 2 imagens inicialmente
-      maxToRenderPerBatch={3} // Renderiza 3 imagens por vez ao rolar
+      initialNumToRender={2}
+      maxToRenderPerBatch={3}
       windowSize={5}
       removeClippedSubviews={true}
       renderItem={({ item, index }) => {
@@ -187,23 +144,19 @@ export function MangaChapter({ route, navigation }: StackRoutes<'MangaChapter'>)
             <MangaImage
               uri={item}
               aspectRatio={aspectRatio}
-              onLoad={() => handleImageLoad(index)} // Atualiza o status quando a imagem for carregada
+              onLoad={() => handleImageLoad(index)}
             />
           </View>
         );
       }}
       ListFooterComponent={() => (
-        <View style={{ flex: 1, width: "100%", height: 80, backgroundColor: theme.colors.white, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 10, flexDirection: 'row', gap: 10, borderTopWidth: 2 }} >
-          {hasBack && (
-            <TouchableOpacity onPress={handleBackPress} style={{ flex: 1, height: 60, backgroundColor: theme.colors.purpleDark, borderRadius: 20, justifyContent: 'center', alignItems: 'center' }}>
-              <Text style={{ textAlign: 'center', color: theme.colors.white, fontSize: theme.font_size.large }}>Anterior</Text>
-            </TouchableOpacity>
-          )}
-          {hasNext && (
-            <TouchableOpacity onPress={handleNextPress} style={{ flex: 1, height: 60, backgroundColor: theme.colors.purpleDark, borderRadius: 20, justifyContent: 'center', alignItems: 'center' }}>
-              <Text style={{ textAlign: 'center', color: theme.colors.white, fontSize: theme.font_size.large }}>Próximo</Text>
-            </TouchableOpacity>
-          )}
+        <View style={{
+          flex: 1, width: "100%", height: 80, backgroundColor: theme.colors.white,
+          justifyContent: 'center', alignItems: 'center', paddingHorizontal: 10,
+          flexDirection: 'row', gap: 10, borderTopWidth: 2
+        }}>
+          {hasBack && <Button onPress={handleBackPress} title="Anterior" />}
+          {hasNext && <Button onPress={handleNextPress} title="Próximo" />}
         </View>
       )}
     />

@@ -1,9 +1,8 @@
 import axios from "axios";
 import * as FileSystem from "expo-file-system";
-import { API_URL } from "@env";
-import InfoManga from "../../api/infoManga";
-import SearchManga from "../../api/search";
-import GetImagesManga from "../../api/getImages";
+import InfoManga from "../api/infoManga";
+import SearchManga from "../api/search";
+import GetImagesManga from "../api/getImages";
 
 const searchManga = new SearchManga();
 const infoManga = new InfoManga();

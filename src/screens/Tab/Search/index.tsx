@@ -17,7 +17,7 @@ export default function Search() {
 
   useEffect(() => {
     loadDownloadedMangas();
-  }, []); // Chama apenas uma vez ao montar
+  }); // Chama apenas uma vez ao montar
 
   const loadDownloadedMangas = async () => {
     const downloaded = await mangaApi.getAllDownloadedMangas();

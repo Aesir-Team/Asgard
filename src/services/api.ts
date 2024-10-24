@@ -1,11 +1,18 @@
 import axios from "axios";
 import * as FileSystem from "expo-file-system";
 import { API_URL } from "@env";
+import InfoManga from "../../api/infoManga";
+import SearchManga from "../../api/search";
+import GetImagesManga from "../../api/getImages";
+
+const searchManga = new SearchManga();
+const infoManga = new InfoManga();
+const getImages = new GetImagesManga();
 export class MangaApi {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = API_URL;
+    this.baseUrl = "http://192.168.2.57:3000";
   }
 
   // Recupera uma lista de todos os mangás
@@ -33,10 +40,9 @@ export class MangaApi {
   // Busca uma lista de mangás com base na pesquisa
   async searchManga(mangaName: string): Promise<any> {
     try {
-      const response = await axios.get(`${this.baseUrl}/search`, {
-        params: { q: mangaName },
-      });
-      return response.data;
+      const response = await searchManga.searchManga(mangaName);
+
+      return response;
     } catch (error) {
       throw new Error("Erro ao buscar mangás");
     }
@@ -45,10 +51,8 @@ export class MangaApi {
   // Recupera um mangá específico com capítulos
   async getManga(mangaName: string): Promise<any> {
     try {
-      const response = await axios.get(`${this.baseUrl}/manga`, {
-        params: { q: mangaName },
-      });
-      return response.data;
+      const response = await infoManga.getMangas(mangaName);
+      return response;
     } catch (error) {
       throw new Error("Erro ao buscar o mangá");
     }
@@ -57,16 +61,12 @@ export class MangaApi {
   // Recupera todas as imagens de um capítulo
   async getImages(mangaName: string, chapterName: string): Promise<any> {
     try {
-      const response = await axios.get(`${this.baseUrl}/images`, {
-        params: { q: `${mangaName}/${chapterName}` },
-      });
+      const response = await getImages.getImagesManga(
+        `${mangaName}/${chapterName}`
+      );
 
       // Ordena as chaves numericamente e retorna as imagens ordenadas
-      const sortedImages = Object.keys(response.data)
-        .sort((a, b) => Number(a) - Number(b))
-        .map((key) => response.data[key]);
-
-      return sortedImages;
+      return response;
     } catch (error) {
       throw new Error("Erro ao buscar imagens do capítulo");
     }
@@ -81,7 +81,6 @@ export class MangaApi {
       );
       return dirList;
     } catch (error) {
-      //console.error("Erro ao listar diretórios:", error);
       return [];
     }
   }

@@ -16,10 +16,7 @@
       "bundleIdentifier": "com.retz.Midgard"
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
+      "icon": "./assets/icon.png",
       "package": "com.retz.Midgard"
     },
     "web": {

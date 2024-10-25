@@ -6,11 +6,13 @@ import { MangaResponseProps } from '../../../models/Manga';
 import { styles } from './styles';
 import theme from '../../../theme';
 import { useNavigation } from '@react-navigation/native';
+import { Loading } from '../../../components/Loading';
 
 export default function Search() {
   const [searchTerm, setSearchTerm] = useState('');
   const [mangaList, setMangaList] = useState<MangaResponseProps[]>([]);
   const [downloadedMangas, setDownloadedMangas] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false)
   const mangaApi = new MangaApi();
   const navigation = useNavigation();
 
@@ -24,7 +26,7 @@ export default function Search() {
   };
 
   const handleSearchSubmit = async (term: string) => {
-    if (!term) return; // Verifica se o termo não está vazio
+
     try {
       const response = await mangaApi.searchManga(term);
       // Mapeia apenas os títulos dos mangás
@@ -34,6 +36,7 @@ export default function Search() {
       }));
 
       setMangaList(mangasList);
+      setLoading(false)
     } catch {
     }
   };
@@ -44,7 +47,8 @@ export default function Search() {
 
   const handleSearchSubmitEditing = () => {
 
-    handleSearchSubmit(searchTerm.trim());
+    handleSearchSubmit(searchTerm);
+    setLoading(true)
   };
 
   return (
@@ -61,19 +65,22 @@ export default function Search() {
         returnKeyType="search" // Define o tipo de tecla de retorno
       />
 
-      <FlatList
-        data={mangaList}
-        keyExtractor={(item) => item.title} // Usa o título como chave
-        renderItem={({ item }) => {
-          return (
-            <MangaItem
-              manga={item}
-              downloaded={downloadedMangas.includes(item.title)}
-              onPress={handleOnMangaPress}
-            />)
-        }}
-        removeClippedSubviews
-      />
+      {
+        loading ? <Loading /> :
+          <FlatList
+            data={mangaList}
+            keyExtractor={(item) => item.title} // Usa o título como chave
+            renderItem={({ item }) => {
+              return (
+                <MangaItem
+                  manga={item}
+                  downloaded={downloadedMangas.includes(item.title)}
+                  onPress={handleOnMangaPress}
+                />)
+            }}
+            removeClippedSubviews
+          />
+      }
     </View>
   );
 }

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, FlatList, Alert } from 'react-native';
 import { MangaResponseProps } from '../../../models/Manga';
 import { Image } from 'expo-image';
 import { MangaApi } from '../../../services/api';
@@ -23,7 +23,6 @@ export function MangaDetail({ route, navigation }: StackRoutes<'MangaDetail'>) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loadingChapters, setLoadingChapters] = useState<string[]>([]);
-
   useEffect(() => {
     if (initialRoute === 'Search') {
       navigation.setOptions({
@@ -38,7 +37,7 @@ export function MangaDetail({ route, navigation }: StackRoutes<'MangaDetail'>) {
 
   useEffect(() => {
     fetchMangaDetail();
-  }, []);
+  }, [mangaName]);
 
   const fetchMangaDetail = async () => {
     setLoading(true);
@@ -59,59 +58,45 @@ export function MangaDetail({ route, navigation }: StackRoutes<'MangaDetail'>) {
           chapters: (chapters || []).map(chapter => ({ title: chapter }))
         });
       }
-    } catch (error) {
+    } catch {
       setError('Não foi possível carregar os detalhes do manga.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChapterPress = async (chapterName: string) => {
+  const handleChapterPress = useCallback(async (chapterName: string) => {
+    const chapter = normalizeTitle(chapterName);
     setLoading(true);
     try {
-      const chapter = normalizeTitle(chapterName);
       let imagesUrls;
-
-      // Verifica se o capítulo já foi baixado
-      if (downloadedChapters.includes(chapterName)) {
+      if (initialRoute === 'Search' && mangaDetail?.chapters) {
+        const mangaTitle = normalizeTitle(mangaDetail.title);
+        imagesUrls = await mangaApi.getImages(mangaTitle, chapter);
+      } else {
         const baseDirectoryUri = `${FileSystem.documentDirectory}media/${mangaName}/${chapterName}`;
         const items = await FileSystem.readDirectoryAsync(baseDirectoryUri);
         const sortedImages = items
           .filter(item => item !== '.DS_Store')
           .sort((a, b) => parseInt(a.match(/\d+/)?.[0] || '0') - parseInt(b.match(/\d+/)?.[0] || '0'));
         imagesUrls = sortedImages.map(imageName => `${baseDirectoryUri}/${imageName}`);
+      }
 
-        // Navega para MangaChapter com a rota "Download"
+      if (imagesUrls?.length) {
         navigation.navigate('MangaChapter', {
           imagesUrls,
           chapterName,
-          initialRoute: 'Download', // Define a rota como Download
+          initialRoute,
           mangaName,
           chaptersList: mangaDetail?.chapters?.map(chapter => chapter.title) || []
         });
       } else {
-        // Se não estiver baixado, use o método normal
-        const mangaTitle = normalizeTitle(mangaDetail?.title || '');
-        imagesUrls = await mangaApi.getImages(mangaTitle, chapter);
-
-        if (imagesUrls?.length) {
-          navigation.navigate('MangaChapter', {
-            imagesUrls,
-            chapterName,
-            initialRoute, // Rota original
-            mangaName,
-            chaptersList: mangaDetail?.chapters?.map(chapter => chapter.title) || []
-          });
-        } else {
-          console.error('Nenhuma imagem encontrada para este capítulo.');
-        }
       }
-    } catch (error) {
-      console.error('Erro ao carregar o capítulo:', error);
+    } catch {
     } finally {
       setLoading(false);
     }
-  };
+  }, [initialRoute, mangaDetail, mangaName, navigation]);
 
   const handleOnDownloadPress = async () => {
     if (!mangaDetail || !mangaDetail.chapters) return;
@@ -139,14 +124,13 @@ export function MangaDetail({ route, navigation }: StackRoutes<'MangaDetail'>) {
 
         setDownloadedChapters(prev => [...prev, chapter.title]);
       } catch (error) {
-        console.error(`Erro ao obter as imagens do capítulo ${chapterName}:`, error);
       } finally {
         setLoadingChapters(prev => prev.filter(chapter => chapter !== chapterName));
       }
     });
 
     await Promise.all(downloadPromises);
-    alert('Todas as imagens de todos os capítulos foram baixadas!');
+    Alert.alert('Sucesso', 'Todas as imagens de todos os capítulos foram baixadas!');
   };
 
   if (loading) return <Loading />;
@@ -182,6 +166,7 @@ export function MangaDetail({ route, navigation }: StackRoutes<'MangaDetail'>) {
         </SafeAreaView>
       }
       keyExtractor={(item) => normalizeTitle(item.title)}
+      removeClippedSubviews={true}
       initialNumToRender={10}
       maxToRenderPerBatch={10}
       windowSize={5}

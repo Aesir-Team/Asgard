@@ -19,25 +19,3 @@ export default {
     xlarge: 32,
   },
 };
-
-  // async getAllDownloadedMangas(): Promise<string[]> {
-  //   try {
-  //     const baseDirectoryUri = `${FileSystem.documentDirectory}media/`;
-
-  //     const items = await FileSystem.readDirectoryAsync(baseDirectoryUri);
-  //     const dirList = items.filter(
-  //       (item) => item !== ".DS_Store" && !item.startsWith(".")
-  //     );
-  //     return dirList;
-  //   } catch (error) {
-  //     console.error("Erro ao listar diretórios:", error);
-  //     return [];
-  //   }
-  // }
-  // async getDownloadedChapters(mangaName: string): Promise<any> {
-  //   const baseDirectoryUri = `${FileSystem.documentDirectory}media/${mangaName}/`;
-  //   const items = await FileSystem.readDirectoryAsync(baseDirectoryUri);
-  //   const dirList = items.filter((item) => item !== ".DS_Store");
-  //   const chapters = dirList.map((chapter) => ({ title: chapter }));
-  //   return chapters;
-  // }

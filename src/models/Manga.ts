@@ -18,7 +18,7 @@ export interface MangaResponseProps {
 
 export interface SearchResponseProps {
   title: string;
-  image?: string;
+  imageUrl?: string;
 }
 export interface ImageResponseProps {
   imagesUrls: string[]; // Mantém a interface, mas a função `getImages` não a utiliza mais

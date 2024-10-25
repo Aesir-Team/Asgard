@@ -23,8 +23,7 @@ export default function Download() {
       setLoading(true);
       const downloadedMangas = await mangaApi.getAllDownloadedMangas();
       setDirectories(downloadedMangas);
-    } catch (error) {
-      console.error('Erro ao listar diretórios:', error);
+    } catch {
     } finally {
       setLoading(false);
     }

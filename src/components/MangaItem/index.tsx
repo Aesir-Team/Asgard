@@ -13,9 +13,10 @@ type MangaItemProps = {
 
 export function MangaItem({ manga, onPress, downloaded }: MangaItemProps) {
   return (
+
     <TouchableOpacity style={styles.mangaItem} onPress={() => { onPress && onPress(manga.title) }}>
-      {manga.image ? <Image source={{ uri: manga.image }} style={styles.mangaImage} /> : null}
-      
+      {manga.imageUrl ? <Image source={{ uri: manga.imageUrl }} style={styles.mangaImage} /> : null}
+
       <View style={styles.mangaContent}>
         <Text style={styles.mangaTitle}>{manga.title}</Text>
         {downloaded && <Check size={24} color={theme.colors.purpleDark} style={styles.downloadIcon} weight='bold' />}

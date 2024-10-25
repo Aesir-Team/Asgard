@@ -8,6 +8,9 @@
       "channel": "production",
       "android": {
         "buildType": "apk"
+      },
+      "ios": {
+        "simulator": false
       }
     },
     "preview": {
@@ -18,10 +21,16 @@
     "preview2": {
       "android": {
         "gradleCommand": ":app:assembleRelease"
+      },
+      "ios": {
+        "simulator": false
       }
     },
     "preview3": {
-      "developmentClient": true
+      "developmentClient": true,
+      "ios": {
+        "simulator": false
+      }
     }
   }
 }

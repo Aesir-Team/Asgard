@@ -1,6 +1,6 @@
 import { memo } from "react";
-import { View } from "react-native";
-import { Image, ImageProps } from "expo-image";
+import { View, Alert } from "react-native";
+import { Image } from "expo-image";
 
 type MangaImageProps = {
   uri: string;
@@ -9,6 +9,7 @@ type MangaImageProps = {
 };
 
 export const MangaImage = memo(({ uri, aspectRatio, onLoad }: MangaImageProps) => {
+
   return (
     <View style={{ width: '100%', aspectRatio }}>
       <Image

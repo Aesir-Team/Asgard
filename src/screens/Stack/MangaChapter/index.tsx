@@ -37,7 +37,6 @@ export function MangaChapter({ route, navigation }: StackRoutes<'MangaChapter'>)
         const response = initialRoute === 'Search'
           ? await mangaApi.getImages(normalizeTitle(mangaName), normalizeTitle(previousChapter))
           : await mangaApi.getDownloadedImages(mangaName, previousChapter);
-
         navigation.replace('MangaChapter', {
           imagesUrls: response,
           chapterName: previousChapter,
@@ -95,7 +94,6 @@ export function MangaChapter({ route, navigation }: StackRoutes<'MangaChapter'>)
             resolve(null);
           },
           (error) => {
-            console.error(`Erro ao obter a dimensão da imagem ${imageUri}:`, error);
             resolve(null);
           }
         );
@@ -139,7 +137,7 @@ export function MangaChapter({ route, navigation }: StackRoutes<'MangaChapter'>)
         const aspectRatio = imgWidth / imgHeight;
 
         return (
-          <View key={index} style={{ width: '100%', aspectRatio }}>
+          <View key={index} style={{ flex: 1, width: '100%', aspectRatio }}>
             {imageLoadingStatus[index] && <Loading />}
             <MangaImage
               uri={item}

@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, TextInput, FlatList } from 'react-native';
+import { View, TextInput, FlatList, Alert } from 'react-native';
 import { MangaApi } from '../../../services/api';
 import MangaItem from '../../../components/MangaItem';
 import { MangaResponseProps } from '../../../models/Manga';
 import { styles } from './styles';
 import theme from '../../../theme';
 import { useNavigation } from '@react-navigation/native';
-import { useDebounce } from '../../../hooks/useDebounce';
 
 export default function Search() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,7 +16,7 @@ export default function Search() {
 
   useEffect(() => {
     loadDownloadedMangas();
-  }); // Chama apenas uma vez ao montar
+  }, []); // Chama apenas uma vez ao montar
 
   const loadDownloadedMangas = async () => {
     const downloaded = await mangaApi.getAllDownloadedMangas();
@@ -25,16 +24,17 @@ export default function Search() {
   };
 
   const handleSearchSubmit = async (term: string) => {
+    if (!term) return; // Verifica se o termo não está vazio
     try {
       const response = await mangaApi.searchManga(term);
-      const mangasList = response.map((manga: { title: string, imageUrl: string | null }) => ({
+      // Mapeia apenas os títulos dos mangás
+      const mangasList = response.map((manga: { title: string; imageUrl?: string; }) => ({
         title: manga.title,
-        image: manga.imageUrl
+        imageUrl: manga.imageUrl
       }));
 
       setMangaList(mangasList);
-    } catch (error) {
-      console.error('Erro ao buscar mangás:', error);
+    } catch {
     }
   };
 
@@ -43,9 +43,8 @@ export default function Search() {
   };
 
   const handleSearchSubmitEditing = () => {
-    if (searchTerm.trim()) {
-      handleSearchSubmit(searchTerm.trim());
-    }
+
+    handleSearchSubmit(searchTerm.trim());
   };
 
   return (
@@ -64,14 +63,16 @@ export default function Search() {
 
       <FlatList
         data={mangaList}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <MangaItem
-            manga={item}
-            downloaded={downloadedMangas.includes(item.title)}
-            onPress={handleOnMangaPress}
-          />
-        )}
+        keyExtractor={(item) => item.title} // Usa o título como chave
+        renderItem={({ item }) => {
+          return (
+            <MangaItem
+              manga={item}
+              downloaded={downloadedMangas.includes(item.title)}
+              onPress={handleOnMangaPress}
+            />)
+        }}
+        removeClippedSubviews
       />
     </View>
   );

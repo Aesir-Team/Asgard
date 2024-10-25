@@ -1,6 +1,7 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
-src/api
+#LEMBRAR DE TIRAR PARA FAZER BUILD SENÃO DA ERRO NO BUILD
+/src/api
 
 # dependencies
 node_modules/

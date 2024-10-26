@@ -27,4 +27,9 @@ export const styles = StyleSheet.create({
     fontFamily: theme.font_family.bold,
     marginBottom: 10,
   },
+  lastChapter: {
+    fontFamily: theme.font_family.regular,
+    fontSize: theme.font_size.small,
+    color: "#ccc",
+  },
 });

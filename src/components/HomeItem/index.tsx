@@ -20,7 +20,7 @@ export function HomeItem({ title, imageUrl, onPress, lastChapter }: HomeItemProp
         <Image source={{ uri: imageUrl }} style={styles.image} contentFit='contain' />
         <View style={styles.textContainer}>
           <Text style={styles.title}>{title}</Text>
-          {lastChapter ? <Text style={{ fontFamily: theme.font_family.regular, fontSize: theme.font_size.small, color: '#ccc' }}>{lastChapter}</Text> : null}
+          {lastChapter ? <Text style={styles.lastChapter}>{lastChapter}</Text> : null}
         </View>
       </TouchableOpacity>
     </View>

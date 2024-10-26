@@ -1,6 +1,8 @@
 import { Image } from "expo-image";
 import { TouchableOpacity } from "react-native";
 import bannerImage from '../../assets/banner.webp';
+import { styles } from "./styles";
+
 
 type DiscordBannerProps = {
   onPress: () => void;
@@ -8,8 +10,8 @@ type DiscordBannerProps = {
 
 export function DiscordBanner({ onPress }: DiscordBannerProps) {
   return (
-    <TouchableOpacity style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 20 }} onPress={onPress}>
-      <Image style={{ width: '90%', height: 150, borderRadius: 20 }} source={bannerImage} contentFit='fill' />
+    <TouchableOpacity style={styles.container} onPress={onPress}>
+      <Image style={styles.image} source={bannerImage} contentFit='fill' />
     </TouchableOpacity>
   )
 }

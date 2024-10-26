@@ -30,6 +30,8 @@ export const styles = StyleSheet.create({
     marginVertical: 20,
     justifyContent: "center",
     borderRadius: 12,
+    borderColor: theme.colors.white,
+    borderWidth:1
   },
   listHeaderTopTitle: {
     textAlign: "center",

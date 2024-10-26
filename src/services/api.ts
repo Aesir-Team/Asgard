@@ -3,10 +3,12 @@ import * as FileSystem from "expo-file-system";
 import InfoManga from "../api/infoManga";
 import SearchManga from "../api/search";
 import GetImagesManga from "../api/getImages";
+import MostPopulars from "../api/mostPopulars";
 
 const searchManga = new SearchManga();
 const infoManga = new InfoManga();
 const getImages = new GetImagesManga();
+const mostPopulars = new MostPopulars();
 export class MangaApi {
   private baseUrl: string;
 
@@ -29,8 +31,8 @@ export class MangaApi {
   // Recupera uma lista de mangás mais populares
   async getMostPopulars(): Promise<any> {
     try {
-      const response = await axios.get(`${this.baseUrl}/most-populars`);
-      return response.data;
+      const response = mostPopulars.getMostPopulars();
+      return response;
     } catch (error) {
       throw new Error("Erro ao buscar os mangás mais populares");
     }

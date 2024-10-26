@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
     borderColor: theme.colors.white,
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 10,
     borderRadius: 8,
     backgroundColor: theme.colors.purpleLight,
     padding: 10, // Adiciona um pouco de espaçamento ao redor do item

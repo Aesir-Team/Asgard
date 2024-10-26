@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, TextInput, FlatList, Alert } from 'react-native';
+import { TextInput, FlatList } from 'react-native';
 import { MangaApi } from '../../../services/api';
 import MangaItem from '../../../components/MangaItem';
 import { MangaResponseProps } from '../../../models/Manga';
@@ -7,6 +7,7 @@ import { styles } from './styles';
 import theme from '../../../theme';
 import { useNavigation } from '@react-navigation/native';
 import { Loading } from '../../../components/Loading';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Search() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,7 +19,7 @@ export default function Search() {
 
   useEffect(() => {
     loadDownloadedMangas();
-  }, []); // Chama apenas uma vez ao montar
+  }, []);
 
   const loadDownloadedMangas = async () => {
     const downloaded = await mangaApi.getAllDownloadedMangas();
@@ -32,7 +33,7 @@ export default function Search() {
       // Mapeia apenas os títulos dos mangás
       const mangasList = response.map((manga: { title: string; imageUrl?: string; }) => ({
         title: manga.title,
-        imageUrl: manga.imageUrl
+        imageUrl: manga.imageUrl,
       }));
 
       setMangaList(mangasList);
@@ -52,7 +53,7 @@ export default function Search() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <TextInput
         style={styles.input}
         placeholder="Buscar mangá..."
@@ -76,11 +77,12 @@ export default function Search() {
                   manga={item}
                   downloaded={downloadedMangas.includes(item.title)}
                   onPress={handleOnMangaPress}
-                />)
+                />
+              )
             }}
             removeClippedSubviews
           />
       }
-    </View>
+    </SafeAreaView>
   );
 }

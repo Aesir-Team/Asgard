@@ -23,6 +23,7 @@ export function MangaDetail({ route, navigation }: StackRoutes<'MangaDetail'>) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loadingChapters, setLoadingChapters] = useState<string[]>([]);
+
   useEffect(() => {
     if (initialRoute === 'Search') {
       navigation.setOptions({
@@ -121,7 +122,6 @@ export function MangaDetail({ route, navigation }: StackRoutes<'MangaDetail'>) {
           const downloadResumable = FileSystem.createDownloadResumable(imageUri, fileUri);
           return downloadResumable.downloadAsync();
         }));
-
         setDownloadedChapters(prev => [...prev, chapter.title]);
       } catch (error) {
       } finally {

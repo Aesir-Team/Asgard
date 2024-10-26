@@ -4,23 +4,21 @@ import theme from "../../../theme";
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: theme.colors.background,
   },
-  noDownloadedContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  noDownloadedTitle: {
-    textAlign: "center",
-    color: theme.colors.white,
-    fontSize: theme.font_size.large,
-  },
   itemContainer: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.purple,
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+  },
+  image: {
+    width: 75,
+    height: 106,
+    borderRadius: 5,
+  },
+  textContainer: {
+    marginLeft: 10,
+    flex: 1,
   },
   listHeaderTopContainer: {
     flex: 1,
@@ -38,8 +36,9 @@ export const styles = StyleSheet.create({
     fontFamily: theme.font_family.bold,
     margin: 10,
   },
-  itemText: {
-    fontSize: 16,
+  title: {
+    fontFamily: theme.font_family.bold,
+    fontSize: theme.font_size.regular,
     color: theme.colors.white,
   },
 });

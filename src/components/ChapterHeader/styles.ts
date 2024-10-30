@@ -1,12 +1,14 @@
 import { StyleSheet } from "react-native";
-import theme from "../../../theme";
+import theme from "../../theme";
 
 export const styles = StyleSheet.create({
+  // Estilos do MangaDetail
   container: {
     flex: 1,
     paddingHorizontal: 20,
     backgroundColor: theme.colors.background,
   },
+  // Estilos do MangaHeader
   headerContainer: {
     flex: 1,
     alignItems: "center",

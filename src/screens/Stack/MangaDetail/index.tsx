@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, Alert } from 'react-native';
+import { View, FlatList, Alert, Text } from 'react-native';
 import { MangaResponseProps } from '../../../models/Manga';
 import { Image } from 'expo-image';
 import { MangaApi } from '../../../services/api';
@@ -13,6 +13,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { DownloadSimple } from 'phosphor-react-native';
 import theme from '../../../theme';
 import * as FileSystem from 'expo-file-system';
+import { ChapterHeader } from '../../../components/ChapterHeader'; // Novo componente
 
 const mangaApi = new MangaApi();
 
@@ -23,6 +24,8 @@ export function MangaDetail({ route, navigation }: StackRoutes<'MangaDetail'>) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loadingChapters, setLoadingChapters] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<string[]>([]);
 
   useEffect(() => {
     if (initialRoute === 'Search') {
@@ -34,7 +37,7 @@ export function MangaDetail({ route, navigation }: StackRoutes<'MangaDetail'>) {
         ),
       });
     }
-  });
+  }, [initialRoute, navigation]);
 
   useEffect(() => {
     fetchMangaDetail();
@@ -43,22 +46,12 @@ export function MangaDetail({ route, navigation }: StackRoutes<'MangaDetail'>) {
   const fetchMangaDetail = async () => {
     setLoading(true);
     try {
-      if (initialRoute === 'Search') {
-        const [response, downloaded] = await Promise.all([
-          mangaApi.getManga(normalizeTitle(mangaName)),
-          mangaApi.getDownloadedChapters(mangaName)
-        ]);
-        if (downloaded) {
-          setDownloadedChapters(downloaded || []);
-        }
-        setMangaDetail(response[0]);
-      } else {
-        const chapters = await mangaApi.getDownloadedChapters(mangaName);
-        setMangaDetail({
-          title: mangaName,
-          chapters: (chapters || []).map(chapter => ({ title: chapter }))
-        });
-      }
+      const [response, downloaded] = await Promise.all([
+        mangaApi.getManga(normalizeTitle(mangaName)),
+        mangaApi.getDownloadedChapters(mangaName),
+      ]);
+      setDownloadedChapters(downloaded || []);
+      setMangaDetail(response[0]);
     } catch {
       setError('Não foi possível carregar os detalhes do manga.');
     } finally {
@@ -66,22 +59,24 @@ export function MangaDetail({ route, navigation }: StackRoutes<'MangaDetail'>) {
     }
   };
 
+  const handleSearch = useCallback(() => {
+    if (searchQuery.trim() === '') {
+      setSearchResults([]);
+    } else if (mangaDetail?.chapters) {
+      const filteredChapters = mangaDetail.chapters
+        .map(chapter => chapter.title)
+        .filter(title => title.toLowerCase().includes(searchQuery.toLowerCase()));
+      setSearchResults(filteredChapters);
+    }
+  }, [searchQuery, mangaDetail]);
+
   const handleChapterPress = useCallback(async (chapterName: string) => {
     const chapter = normalizeTitle(chapterName);
     setLoading(true);
     try {
       let imagesUrls;
-      if (initialRoute === 'Search' && mangaDetail?.chapters) {
-        const mangaTitle = normalizeTitle(mangaDetail.title);
-        imagesUrls = await mangaApi.getImages(mangaTitle, chapter);
-      } else {
-        const baseDirectoryUri = `${FileSystem.documentDirectory}media/${mangaName}/${chapterName}`;
-        const items = await FileSystem.readDirectoryAsync(baseDirectoryUri);
-        const sortedImages = items
-          .filter(item => item !== '.DS_Store')
-          .sort((a, b) => parseInt(a.match(/\d+/)?.[0] || '0') - parseInt(b.match(/\d+/)?.[0] || '0'));
-        imagesUrls = sortedImages.map(imageName => `${baseDirectoryUri}/${imageName}`);
-      }
+      const mangaTitle = normalizeTitle(mangaDetail?.title || '');
+      imagesUrls = await mangaApi.getImages(mangaTitle, chapter);
 
       if (imagesUrls?.length) {
         navigation.navigate('MangaChapter', {
@@ -89,9 +84,8 @@ export function MangaDetail({ route, navigation }: StackRoutes<'MangaDetail'>) {
           chapterName,
           initialRoute,
           mangaName,
-          chaptersList: mangaDetail?.chapters?.map(chapter => chapter.title) || []
+          chaptersList: mangaDetail?.chapters?.map(chapter => chapter.title) || [],
         });
-      } else {
       }
     } catch {
     } finally {
@@ -145,39 +139,30 @@ export function MangaDetail({ route, navigation }: StackRoutes<'MangaDetail'>) {
 
   return (
     <FlatList
-      data={mangaDetail?.chapters}
+      data={searchResults.length > 0 ? searchResults : mangaDetail?.chapters?.map(chapter => chapter.title)}
       style={styles.container}
       ListHeaderComponent={
-        <SafeAreaView style={styles.headerContainer}>
-          {mangaDetail?.imageUrl && (
-            <Image
-              source={{ uri: mangaDetail.imageUrl }}
-              style={styles.headerBanner}
-              contentFit="contain"
-            />
-          )}
-          <Text style={styles.headerTitle}>{mangaDetail?.title}</Text>
-          {mangaDetail?.description && (
-            <View style={styles.headerSinopseView}>
-              <Text style={styles.headerSinopse}>Sinopse</Text>
-              <Text style={styles.headerDescription}>{mangaDetail?.description}</Text>
-            </View>
-          )}
-        </SafeAreaView>
+        <ChapterHeader
+          mangaDetail={mangaDetail}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          onSearch={handleSearch}
+        />
       }
-      keyExtractor={(item) => normalizeTitle(item.title)}
+      keyExtractor={(item) => normalizeTitle(item)}
       removeClippedSubviews={true}
       initialNumToRender={10}
       maxToRenderPerBatch={10}
       windowSize={5}
       renderItem={({ item }) => (
         <ChapterItem
-          chapterName={item.title}
-          onPress={() => handleChapterPress(item.title)}
-          downloaded={downloadedChapters.includes(item.title)}
-          loading={loadingChapters.includes(normalizeTitle(item.title))}
+          chapterName={item}
+          onPress={() => handleChapterPress(item)}
+          downloaded={downloadedChapters.includes(item)}
+          loading={loadingChapters.includes(normalizeTitle(item))}
         />
       )}
+      ListFooterComponent={<View style={{ height: 100 }} />}
     />
   );
 }

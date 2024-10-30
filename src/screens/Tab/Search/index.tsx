@@ -65,7 +65,6 @@ export default function Search() {
         onSubmitEditing={handleSearchSubmitEditing} // Adiciona o manipulador
         returnKeyType="search" // Define o tipo de tecla de retorno
       />
-
       {
         loading ? <Loading /> :
           <FlatList

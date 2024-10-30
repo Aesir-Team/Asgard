@@ -37,11 +37,11 @@ export function MangaDetail({ route, navigation }: StackRoutes<'MangaDetail'>) {
         ),
       });
     }
-  }, [initialRoute, navigation]);
+  });
 
   useEffect(() => {
     fetchMangaDetail();
-  }, [mangaName]);
+  }, []);
 
   const fetchMangaDetail = async () => {
     setLoading(true);
